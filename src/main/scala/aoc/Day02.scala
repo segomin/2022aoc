@@ -35,7 +35,9 @@ object Rock extends Hand {
   override val shapeOfScore: Int = 1
 
   override def losingToMe(): Hand = Scissors
+
   override def winToMe(): Hand = Paper
+
   override def drawingToMe(): Hand = Rock
 }
 
@@ -43,7 +45,9 @@ object Paper extends Hand {
   override val shapeOfScore: Int = 2
 
   override def losingToMe(): Hand = Rock
+
   override def winToMe(): Hand = Scissors
+
   override def drawingToMe(): Hand = Paper
 }
 
@@ -51,7 +55,9 @@ object Scissors extends Hand {
   override val shapeOfScore: Int = 3
 
   override def losingToMe(): Hand = Paper
+
   override def winToMe(): Hand = Rock
+
   override def drawingToMe(): Hand = Scissors
 }
 
@@ -59,19 +65,18 @@ object Day02 extends App {
 
   val filename = "src/main/scala/aoc/Day02.input"
 
-  def getScores(xs: List[String]): Int = {
-    xs.map(x => x.split(" "))
-      .filter(em => em.length == 2)
-      .foldLeft(0) { (acc, em) =>
-        em match {
-          case Array(abc, xyz) =>
-            val elf = getElfs(abc)
-            val mine = getOpponentOf(xyz, elf)
-            acc + mine.engage(elf)
-//            acc + getMine(xyz).engage(getElfs(abc)) xyz as my rock,paper,scissors
-        }
+  def getScores(xs: List[String]): Int = xs
+    .map(x => x.split(" "))
+    .filter(em => em.length == 2)
+    .foldLeft(0) { (acc, em) =>
+      em match {
+        case Array(abc, xyz) =>
+          val elf = getElfs(abc)
+          val mine = getOpponentOf(xyz, elf)
+          acc + mine.engage(elf)
+//          acc + getMine(xyz).engage(getElfs(abc)) xyz as my rock,paper,scissors
       }
-  }
+    }
 
   val result = getScores(Source.fromFile(filename).getLines.map(a => a.trim).toList)
 
