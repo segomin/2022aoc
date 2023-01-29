@@ -63,13 +63,13 @@ object Day02 extends App {
     xs.map(x => x.split(" "))
       .filter(em => em.length == 2)
       .foldLeft(0) { (acc, em) =>
-        val abc = em.head
-        val xyz = em.tail.head
-
-        val elf = getElfs(abc)
-        val mine = getOpponentOf(xyz, elf)
-        acc + mine.engage(elf)
-//        acc + getMine(xyz).engage(getElfs(abc)) xyz as my rock,paper,scissors
+        em match {
+          case Array(abc, xyz) =>
+            val elf = getElfs(abc)
+            val mine = getOpponentOf(xyz, elf)
+            acc + mine.engage(elf)
+//            acc + getMine(xyz).engage(getElfs(abc)) xyz as my rock,paper,scissors
+        }
       }
   }
 
