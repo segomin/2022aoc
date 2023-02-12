@@ -80,7 +80,7 @@ object Day02 extends App {
 
   val result = getScores(Source.fromFile(filename).getLines.map(a => a.trim).toList)
 
-  print(result) // 11954 should be 12881
+  print(result)
 
   def getElfs(abc: String) = abc match {
     case "A" => Rock
