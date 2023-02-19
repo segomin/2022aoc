@@ -16,25 +16,19 @@ class Day04Test extends HedgehogSuite{
                  |6-6,4-6
                  |2-6,4-8""".stripMargin.split("\n")
 
+  def isContain(outer: (Int, Int), inner: (Int, Int)): Boolean = {
+    if (outer._1 > inner._1) return isContain(inner, outer)
+    if (outer._2 < inner._2) return false
+    true
+  }
 
   test("countFullyContained") {
-    val ret: Int = inputs.map(ln => Day04.calcIf(ln)(Day04.isOverlaps)).count(a => a)
+    val ret: Int = inputs.map(ln => Day04.calcIfContains(ln)).count(a => a)
     println(ret)
 
     ret ==== 5
     withMunitAssertions { assertions =>
       assertions.assertEquals(ret, 5)
-    }
-  }
-
-
-  test("countOverlapped") {
-    val ret: Int = inputs.map(ln => Day04.calcIf(ln)(Day04.isOverlaps)).count(a => a)
-    println(ret)
-
-    ret ==== 8
-    withMunitAssertions { assertions =>
-      assertions.assertEquals(ret, 8)
     }
   }
 }

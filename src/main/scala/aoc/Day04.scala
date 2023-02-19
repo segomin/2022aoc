@@ -13,15 +13,24 @@ object Day04 extends App {
     if (outer._2 < inner._2) return false
     true
   }
-  def calcIfContains(line: String) = {
+
+  def isOverlaps(left: (Int, Int), right: (Int, Int)): Boolean = {
+    if (left._1 > right._1) return isOverlaps(right, left)
+    if (left._1 == right._1) return true
+    if (left._2 < right._1) return false
+    true
+  }
+
+  def calcIf(line: String)(func: ((Int, Int), (Int, Int)) => Boolean) = {
     val ret: ((Int, Int), (Int, Int)) = line.split(',').map(_.split('-') match {
       case Array(a, b) => (a.toInt, b.toInt)
     }) match {
       case Array(a, b) => (a, b)
     }
-    isContain(ret._1, ret._2)
+    func(ret._1, ret._2)
   }
 
-  val ret: Int = lines.map(calcIfContains(_)).count( a => a)
+//  val ret: Int = lines.map(calcIf(_)(isContain)).count(a => a)
+  val ret: Int = lines.map(calcIf(_)(isOverlaps)).count(a => a)
   println(ret) // supposed to be 524
 }
