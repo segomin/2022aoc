@@ -93,16 +93,16 @@ object Day07 extends App {
   }
 
   def minimumSizeToDelete(root: Dir): Int = {
-    val sizeList = Day07.getDirSizeList(root)
-    val total = Day07.getDirSize(root)
+    val sizeList = getDirSizeList(root)
+    val total = getDirSize(root)
     val reqSize = 30_000_000 - (70_000_000 - total)
     sizeList.filter(_ > reqSize).min
   }
 
-  val root: Dir = Day07.mkTree(lines).getRoot()
-  val part1: Int = Day07.sumOfUnder100(root)
+  val root: Dir = mkTree(lines).getRoot()
+  val part1: Int = sumOfUnder100(root)
   println(part1)
 
-  val part2: Int = Day07.minimumSizeToDelete(root)
+  val part2: Int = minimumSizeToDelete(root)
   println(part2)
 }
