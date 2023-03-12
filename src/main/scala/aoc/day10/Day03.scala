@@ -1,4 +1,4 @@
-package aoc
+package aoc.day10
 
 import scala.annotation.tailrec
 import scala.io.Source

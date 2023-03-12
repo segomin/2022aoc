@@ -1,7 +1,7 @@
-package aoc
+package aoc.day10
 
-import hedgehog.munit.HedgehogSuite
 import hedgehog._
+import hedgehog.munit.HedgehogSuite
 
 class Day04Test extends HedgehogSuite{
 

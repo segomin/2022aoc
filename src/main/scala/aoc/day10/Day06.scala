@@ -1,4 +1,4 @@
-package aoc
+package aoc.day10
 
 import scala.collection.mutable
 import scala.io.Source

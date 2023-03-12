@@ -1,6 +1,6 @@
-package aoc
+package aoc.day10
 
-import aoc.Day03.{calcDuplicateChar, calcDuplicateCharIn3, charToPoint}
+import aoc.day10.Day03.{calcDuplicateChar, calcDuplicateCharIn3, charToPoint}
 import hedgehog.munit.HedgehogSuite
 
 class Day3Test extends HedgehogSuite {

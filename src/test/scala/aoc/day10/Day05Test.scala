@@ -1,8 +1,7 @@
-package aoc
+package aoc.day10
 
 import aoc.Day05.{doMove, parseStack, splitInput}
 import hedgehog.munit.HedgehogSuite
-import hedgehog._
 
 class Day05Test extends HedgehogSuite{
 

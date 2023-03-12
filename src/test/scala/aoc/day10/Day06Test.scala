@@ -1,6 +1,6 @@
-package aoc
+package aoc.day10
 
-import aoc.Day06.findUniqueIndex
+import aoc.day10.Day06.findUniqueIndex
 import hedgehog.munit.HedgehogSuite
 
 import scala.collection.mutable
