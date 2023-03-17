@@ -9,12 +9,16 @@ object Day11 extends App {
   val lines = Source.fromFile(filename).getLines()
   val inputs = lines.mkString("\n")
 
-  def monkeyBusiness(input: String, loop: Int, divideBy: Int = 1): Long = {
+  def monkeyBusiness(input: String, round: Int, divideBy: Int = 1): Long = {
     val monkeys = MonkeyParser.parseMonkeys(input)
     val monkeyMap = monkeys.map(monkey => monkey.id -> monkey).toMap;
 
-    for (i <- 1 to loop) {
-      monkeys.foreach { monkey => monkey.throwItems(monkeyMap, divideBy) }
+    for (i <- 1 to round) {
+      monkeys.foreach { monkey =>
+        monkey.throwItems(divideBy, (to, worry) =>
+          monkeyMap.getOrElse(to, throw new RuntimeException("")).appendItem(worry)
+        )
+      }
 
       if (List(1, 20, 1000, 2000, 3000, 4000).contains(i)) {
         println(s"== After round $i ==")
@@ -22,6 +26,7 @@ object Day11 extends App {
         println()
       }
     }
+
     monkeys
       .map(monkey => monkey.inspectCount)
       .sortWith { (left, right) => left > right }.take(2)
@@ -39,13 +44,13 @@ case class Monkey(id: Int, queue: mutable.Queue[Long], operation: (Long) => Long
 
   def appendItem(worry: Long): Unit = queue.addOne(worry)
 
-  def throwItems(monkeys: Map[Int, Monkey], dividBy: Int = 1) = {
+  def throwItems(divideBy: Int, throwTo: (Int, Long) => Unit) = {
     while (queue.nonEmpty) {
       val item = queue.dequeue()
       inspectCount = inspectCount + 1
-      val worry = operation(item) / dividBy
+      val worry = operation(item) / divideBy
       val target = if (worry % divisibleBy == 0) trueTarget else falseTarget
-      monkeys.get(target).map(to => to.appendItem(worry))
+      throwTo(target, worry)
     }
   }
 }
