@@ -9,22 +9,22 @@ object Day11 extends App {
   val lines = Source.fromFile(filename).getLines()
   val inputs = lines.mkString("\n")
 
-  def monkeyBusiness(input: String, round: Int, divideBy: Int = 1): Long = {
+  def monkeyBusiness(input: String, round: Int, reduceBy: Int = 1): Long = {
     val monkeys = MonkeyParser.parseMonkeys(input)
-    val monkeyMap = monkeys.map(monkey => monkey.id -> monkey).toMap;
+    val monkeyMap: Map[Int, Monkey] = monkeys.map(monkey => monkey.id -> monkey).toMap;
 
-    for (i <- 1 to round) {
+    for (_ <- 1 to round) {
       monkeys.foreach { monkey =>
-        monkey.throwItems(divideBy, (to, worry) =>
-          monkeyMap.getOrElse(to, throw new RuntimeException("")).appendItem(worry)
+        monkey.throwItems(reduceBy, (to, worry) =>
+          monkeyMap(to).appendItem(worry)
         )
       }
 
-      if (List(1, 20, 1000, 2000, 3000, 4000).contains(i)) {
-        println(s"== After round $i ==")
-        monkeys.foreach(monkey => println(s"Monkey ${monkey.id} inspected items ${monkey.inspectCount} times."))
-        println()
-      }
+//      if (List(1, 20, 1000, 2000, 3000, 4000).contains(i)) {
+//        println(s"== After round $i ==")
+//        monkeys.foreach(monkey => println(s"Monkey ${monkey.id} inspected items ${monkey.inspectCount} times. ${monkey.getQueue()}"))
+//        println()
+//      }
     }
 
     monkeys
@@ -39,56 +39,94 @@ object Day11 extends App {
   println(part2);
 }
 
-case class Monkey(id: Int, queue: mutable.Queue[Long], operation: (Long) => Long, divisibleBy: Long, trueTarget: Int, falseTarget: Int) {
-  var inspectCount: Long = 0
+class Item(var worries: Map[Int, Int]) {
+  def of(monkeyId: Int): Int = worries(monkeyId)
+}
 
-  def appendItem(worry: Long): Unit = queue.addOne(worry)
+object Item {
+  private val divisibleMap: mutable.Map[Int, Int] = mutable.Map()
 
-  def throwItems(divideBy: Int, throwTo: (Int, Long) => Unit) = {
-    while (queue.nonEmpty) {
-      val item = queue.dequeue()
-      inspectCount = inspectCount + 1
-      val worry = operation(item) / divideBy
-      val target = if (worry % divisibleBy == 0) trueTarget else falseTarget
-      throwTo(target, worry)
-    }
+  def init(init: Int) = {
+    val worries = divisibleMap.map { case (id, _) => (id, init) }.toMap
+    new Item(worries)
+  }
+
+  def from(item: Item, operate: Int => Int, reduceBy: Int) = {
+    val worries = divisibleMap.map { case (id, divisible) =>
+      if (reduceBy == 1)
+        (id, operate(item.of(id)) % divisible)
+      else
+        (id, operate(item.of(id)) / reduceBy)
+    }.toMap
+
+    new Item(worries)
+  }
+
+  def addDivisible(monkeyId: Int, divisibleBy: Int): Unit = {
+    divisibleMap.put(monkeyId, divisibleBy)
   }
 }
 
+case class Monkey(id: Int, queue: mutable.Queue[Item], operation: (Int) => Int, divisibleBy: Int, trueTarget: Int, falseTarget: Int) {
+  var inspectCount: Long = 0
+  def appendItem(worry: Item): Unit = queue.addOne(worry)
+
+  def throwItems(reduceBy: Int, throwTo: (Int, Item) => Unit) = {
+    while (queue.nonEmpty) {
+      val item = queue.dequeue()
+      inspectCount = inspectCount + 1
+      val worry = Item.from(item, operation, reduceBy)
+      val target = if (worry.of(id) % divisibleBy == 0) trueTarget else falseTarget
+      throwTo(target, worry)
+    }
+  }
+
+  def getQueue() = queue.map(item => item.of(id)).mkString(",")
+}
+
 object MonkeyParser {
-  def opFun(op: String)(left: Long, right: Long): Long = op match {
-    case "+" => left + right
-    case "*" => left * right
+  val monkeyRegex =
+    """Monkey (\d+):
+      |\s+Starting items: ([0-9, ]+)
+      |\s+Operation: new = (.+)
+      |\s+Test: divisible by (\d+)
+      |\s+If true: throw to monkey (\d+)
+      |\s+If false: throw to monkey (\d+)""".stripMargin.r
+
+  def parseMonkeys(input: String): List[Monkey] = {
+    val monkeyStrings = input.split("\n\n")
+    monkeyStrings.foreach(parseDivisiblesFirst)
+    monkeyStrings.map(parseMonkeySecond).toList
   }
 
-  def parseOperation(operation: String): Long => Long = operation.split(" ") match {
-    case Array(left, op, right) if left == "old" && right == "old" => (old: Long) => opFun(op)(old, old)
-    case Array(left, op, right) if left == "old" && right != "old" => (old: Long) => opFun(op)(old, right.toInt)
+  def parseDivisiblesFirst(input: String): Unit = {
+    input match {
+      case monkeyRegex(id, items, operation, divisibleBy, trueMonkey, falseMonkey) =>
+        Item.addDivisible(id.toInt, divisibleBy.toInt)
+    }
   }
 
-  def parseMonkey(input: String): Monkey = {
-    val monkeyRegex =
-      """Monkey (\d+):
-        |\s+Starting items: ([0-9, ]+)
-        |\s+Operation: new = (.+)
-        |\s+Test: divisible by (\d+)
-        |\s+If true: throw to monkey (\d+)
-        |\s+If false: throw to monkey (\d+)""".stripMargin.r
+  def parseMonkeySecond(input: String): Monkey = {
     input match {
       case monkeyRegex(id, items, operation, divisibleBy, trueMonkey, falseMonkey) =>
         Monkey(
           id.toInt,
-          mutable.Queue(items.split(", ").map(_.toLong).toList: _*),
+          mutable.Queue(items.split(", ").map(value => Item.init(value.toInt)).toList: _*),
           parseOperation(operation),
-          divisibleBy.toLong,
+          divisibleBy.toInt,
           trueMonkey.toInt,
           falseMonkey.toInt
         )
     }
   }
 
-  def parseMonkeys(input: String): List[Monkey] = {
-    val monkeyStrings = input.split("\n\n")
-    monkeyStrings.map(parseMonkey).toList
+  def parseOperation(operation: String): Int => Int = operation.split(" ") match {
+    case Array(left, op, right) if left == "old" && right == "old" => (old: Int) => opFun(op)(old, old)
+    case Array(left, op, right) if left == "old" && right != "old" => (old: Int) => opFun(op)(old, right.toInt)
+  }
+
+  def opFun(op: String)(left: Int, right: Int): Int = op match {
+    case "+" => left + right
+    case "*" => left * right
   }
 }
