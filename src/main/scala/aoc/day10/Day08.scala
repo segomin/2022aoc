@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.io.Source
 
 object Day08 extends App {
-  val filename = "src/main/scala/aoc/Day08.input"
+  val filename = "src/main/scala/aoc/day10/Day08.input"
   val lines = Source.fromFile(filename).getLines()
 
   val inputs = lines.toArray

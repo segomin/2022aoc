@@ -5,7 +5,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 object Day09 extends App {
-  val filename = "src/main/scala/aoc/Day09.input"
+  val filename = "src/main/scala/aoc/day10/Day09.input"
   val lines = Source.fromFile(filename).getLines()
   val inputs = lines.toArray
 
