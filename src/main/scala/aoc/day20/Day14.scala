@@ -3,13 +3,25 @@ package aoc.day20
 import scala.annotation.tailrec
 import scala.io.Source
 
+
+case class Point(x: Int, y: Int) {
+  def down() = Point(x, y + 1)
+  def left()  = Point(x - 1, y)
+  def right()  = Point(x + 1, y)
+}
+
+object Point {
+  def ofList(xyList: Array[String]): List[Point] = xyList.map(xy => Point.of(xy.split(","))).toList
+  def of(xy: Array[String]): Point = Point(xy(0).toInt, xy(1).toInt)
+}
+
 object Day14 extends App {
 
   val filename = "src/main/scala/aoc/day20/Day14.input"
   val lines = Source.fromFile(filename).getLines()
   val inputs = lines
 
-  val inputs_ =
+  val inputsShort =
     """498,4 -> 498,6 -> 496,6
       |503,4 -> 502,4 -> 502,9 -> 494,9""".stripMargin.split("\n")
 
@@ -87,13 +99,13 @@ object Day14 extends App {
     Array.tabulate(bottomY, x * 2)((_, _) => '.')
   }
 
-  private def getMax(pointsLines: List[List[Point]]) = {
+  private def getMax(pointsLines: List[List[Point]]): (Int, Int) = {
     val maxX = pointsLines.maxBy(lst => lst.maxBy(_.x).x).maxBy(_.x).x + 1
     val maxY = pointsLines.maxBy(lst => lst.maxBy(_.y).y).maxBy(_.y).y + 1
     (maxX, maxY)
   }
 
-  def drawLine(board: Array[Array[Char]], pointsLines: List[List[Point]]) = {
+  def drawLine(board: Array[Array[Char]], pointsLines: List[List[Point]]): Unit = {
     pointsLines.foreach(points => points.sliding(2).foreach(from2 => drawPath(board, from2.head, from2.last)))
   }
 
@@ -110,15 +122,4 @@ object Day14 extends App {
       (from.x to to.x).foreach(x => board(to.y)(x) = '#')
     }
   }
-}
-
-case class Point(x: Int, y: Int) {
-  def down() = Point(x, y + 1)
-  def left()  = Point(x - 1, y)
-  def right()  = Point(x + 1, y)
-}
-
-object Point {
-  def ofList(xys: Array[String]): List[Point] = xys.map(xy => Point.of(xy.split(","))).toList
-  def of(xy: Array[String]): Point = Point(xy(0).toInt, xy(1).toInt)
 }
